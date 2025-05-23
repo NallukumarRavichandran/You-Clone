@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouClone - Video Sharing Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .video-thumbnail {
+            transition: transform 0.3s ease;
+        }
+        .video-thumbnail:hover {
+            transform: scale(1.03);
+        }
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .search-bar:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);
+        }
+        .video-container {
+            aspect-ratio: 16/9;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 40;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        @media (min-width: 769px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+            .main-content {
+                margin-left: 16rem; /* 64 */
+            }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header -->
+    <header class="bg-gray-900 sticky top-0 z-50 border-b border-gray-700">
+        <div class="flex items-center justify-between px-4 py-2">
+            <!-- Left Section -->
+            <div class="flex items-center space-x-4">
+                <button id="menu-btn" class="md:hidden text-white p-2 rounded-full hover:bg-gray-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center">
+                    <i class="fab fa-youtube text-red-600 text-3xl mr-1"></i>
+                    <span class="font-bold text-xl">YouClone</span>
+                </div>
+            </div>
+            
+            <!-- Center Section - Search Bar -->
+            <div class="hidden md:flex flex-1 max-w-2xl mx-4">
+                <div class="relative w-full">
+                    <input type="text" placeholder="Search" class="w-full bg-gray-800 text-white px-4 py-2 rounded-l-full border border-gray-700 focus:border-gray-500 search-bar">
+                    <button class="absolute right-0 top-0 h-full bg-gray-700 px-5 rounded-r-full border border-l-0 border-gray-700 hover:bg-gray-600">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <button class="ml-2 bg-gray-800 p-2 rounded-full hover:bg-gray-700">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+            
+            <!-- Right Section -->
+            <div class="flex items-center space-x-4">
+                <button class="p-2 rounded-full hover:bg-gray-700 hidden md:block">
+                    <i class="fas fa-video text-xl"></i>
+                </button>
+                <button class="p-2 rounded-full hover:bg-gray-700 hidden md:block">
+                    <i class="fas fa-bell text-xl"></i>
+                </button>
+                <button class="p-2 rounded-full hover:bg-gray-700">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Search Bar -->
+        <div class="md:hidden px-4 py-2">
+            <div class="relative">
+                <input type="text" placeholder="Search" class="w-full bg-gray-800 text-white px-4 py-2 rounded-full border border-gray-700 search-bar">
+                <button class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <i class="fas fa-search text-gray-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 bg-gray-900 h-screen overflow-y-auto pb-20">
+            <div class="px-4 py-2">
+                <!-- Main Menu -->
+                <div class="mb-4">
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer bg-gray-800">
+                        <i class="fas fa-home text-xl"></i>
+                        <span>Home</span>
+                    </div>
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800 mt-1">
+                        <i class="fas fa-compass text-xl"></i>
+                        <span>Explore</span>
+                    </div>
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800 mt-1">
+                        <i class="fas fa-subscript text-xl"></i>
+                        <span>Subscriptions</span>
+                    </div>
+                </div>
+                
+                <!-- Library -->
+                <div class="mb-4 border-t border-gray-700 pt-4">
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800">
+                        <i class="fas fa-photo-video text-xl"></i>
+                        <span>Library</span>
+                    </div>
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800 mt-1">
+                        <i class="fas fa-history text-xl"></i>
+                        <span>History</span>
+                    </div>
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800 mt-1">
+                        <i class="fas fa-clock text-xl"></i>
+                        <span>Watch Later</span>
+                    </div>
+                </div>
+                
+                <!-- Subscriptions -->
+                <div class="mb-4 border-t border-gray-700 pt-4">
+                    <h3 class="font-semibold px-2 py-1">SUBSCRIPTIONS</h3>
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800 mt-1">
+                        <div class="w-6 h-6 rounded-full bg-red-500"></div>
+                        <span>Tech Channel</span>
+                    </div>
+                    <div class="sidebar-item flex items-center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800 mt-1">
+                        <div class="w-6 h-6 rounded-full bg-blue-500"></div>
+                        <span>Cooking Channel</span>
+                    </div>
+                    <div class="sidebar-item flex items center space-x-4 p-2 rounded-lg cursor-pointer hover:bg-gray-800 mt-1">
+                        <div class="w-6 h-6 rounded-full bg-green-500"></div>
+                        <span>Gaming Channel</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-1 p-4">
+            <!-- Categories -->
+            <div class="flex space-x-2 overflow-x-auto pb-4 scrollbar-hide">
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">All</button>
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">Music</button>
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">Gaming</button>
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">Live</button>
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">Programming</button>
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">Cooking</button>
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">Recently uploaded</button>
+                <button class="px-3 py-1 bg-gray-800 text-white rounded-full whitespace-nowrap hover:bg-gray-700">Watched</button>
+            </div>
+
+            <!-- Videos Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Video Card 1 - Changed from Rickroll to a coding tutorial -->
+                <div class="video-card cursor-pointer" data-video-id="PkZNo7MFNFg">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/PkZNo7MFNFg/hqdefault.jpg" alt="Learn JavaScript in 1 Hour" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">1:00:00</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-purple-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">JavaScript Tutorial for Beginners: Learn JavaScript in 1 Hour</h3>
+                            <p class="text-gray-400 text-xs mt-1">Programming with Mosh</p>
+                            <p class="text-gray-400 text-xs">12M views • 3 years ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 2 - BroCode Video -->
+                <div class="video-card cursor-pointer" data-video-id="hdI2bqOjy3c">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/hdI2bqOjy3c/hqdefault.jpg" alt="Learn HTML in 1 Hour" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">1:00:00</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-orange-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">HTML Tutorial for Beginners: Learn HTML in 1 Hour</h3>
+                            <p class="text-gray-400 text-xs mt-1">Bro Code</p>
+                            <p class="text-gray-400 text-xs">3.2M views • 1 year ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 3 -->
+                <div class="video-card cursor-pointer" data-video-id="UB1O30fR-EE">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/UB1O30fR-EE/hqdefault.jpg" alt="Video thumbnail" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">22:10</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-red-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">HTML Crash Course For Absolute Beginners</h3>
+                            <p class="text-gray-400 text-xs mt-1">Web Dev Simplified</p>
+                            <p class="text-gray-400 text-xs">2.1M views • 1 month ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 4 -->
+                <div class="video-card cursor-pointer" data-video-id="yfoY53QXEnI">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/yfoY53QXEnI/hqdefault.jpg" alt="Video thumbnail" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">8:22</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-yellow-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">CSS Flexbox in 8 Minutes</h3>
+                            <p class="text-gray-400 text-xs mt-1">CSS Tricks</p>
+                            <p class="text-gray-400 text-xs">1.5M views • 2 months ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 5 -->
+                <div class="video-card cursor-pointer" data-video-id="1Rs2ND1ryYc">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/1Rs2ND1ryYc/hqdefault.jpg" alt="Video thumbnail" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">12:45</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-green-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">Modern JavaScript Features You Need to Know</h3>
+                            <p class="text-gray-400 text-xs mt-1">JS Wizards</p>
+                            <p class="text-gray-400 text-xs">723K views • 5 days ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 6 -->
+                <div class="video-card cursor-pointer" data-video-id="6mbwJ2x5zbs">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/6mbwJ2x5zbs/hqdefault.jpg" alt="Video thumbnail" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">18:30</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-pink-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">Building a Responsive Website from Scratch</h3>
+                            <p class="text-gray-400 text-xs mt-1">Design Masters</p>
+                            <p class="text-gray-400 text-xs">945K views • 3 weeks ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 7 -->
+                <div class="video-card cursor-pointer" data-video-id="G3e-cpL7ofc">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/G3e-cpL7ofc/hqdefault.jpg" alt="Video thumbnail" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">25:15</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-indigo-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">Advanced CSS Techniques for 2023</h3>
+                            <p class="text-gray-400 text-xs mt-1">CSS Ninja</p>
+                            <p class="text-gray-400 text-xs">1.1M views • 2 weeks ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 8 -->
+                <div class="video-card cursor-pointer" data-video-id="jS4aFq5-91M">
+                    <div class="video-thumbnail relative overflow-hidden rounded-lg">
+                        <img src="https://i.ytimg.com/vi/jS4aFq5-91M/hqdefault.jpg" alt="Video thumbnail" class="w-full h-full object-cover video-thumbnail">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-80 px-1.5 py-0.5 rounded text-xs">9:45</span>
+                    </div>
+                    <div class="flex mt-3">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-9 h-9 rounded-full bg-teal-500"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-sm line-clamp-2">How to Use GitHub for Beginners</h3>
+                            <p class="text-gray-400 text-xs mt-1">Git Guru</p>
+                            <p class="text-gray-400 text-xs">2.3M views • 4 months ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Video Player Modal (hidden by default) -->
+    <div id="video-modal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden">
+        <div class="container mx-auto px-4 py-8 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <button id="close-modal" class="text-white text-2xl hover:text-red-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="video-container w-full bg-black rounded-lg overflow-hidden">
+                <!-- YouTube iframe player -->
+                <iframe id="video-player" class="w-full h-full" frameborder="0" allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                </iframe>
+            </div>
+            <div class="mt-4">
+                <h2 id="video-title" class="text-xl font-bold">JavaScript Tutorial for Beginners: Learn JavaScript in 1 Hour</h2>
+                <div class="flex items-center justify-between mt-2">
+                    <p id="video-stats" class="text-gray-400">12M views • 3 years ago</p>
+                    <div class="flex space-x-4">
+                        <button class="flex items-center space-x-1 text-gray-300 hover:text-white">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>350K</span>
+                        </button>
+                        <button class="flex items-center space-x-1 text-gray-300 hover:text-white">
+                            <i class="fas fa-thumbs-down"></i>
+                            <span>5K</span>
+                        </button>
+                        <button class="flex items-center space-x-1 text-gray-300 hover:text-white">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </button>
+                        <button class="flex items-center space-x-1 text-gray-300 hover:text-white">
+                            <i class="fas fa-plus"></i>
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-start mt-4">
+                    <div id="channel-icon" class="w-10 h-10 rounded-full bg-purple-500 mr-3"></div>
+                    <div>
+                        <h3 id="channel-name" class="font-semibold">Programming with Mosh</h3>
+                        <p id="channel-subs" class="text-sm text-gray-400">2.5M subscribers</p>
+                        <p id="video-description" class="mt-2 text-sm">Watch this JavaScript tutorial for beginners to learn JavaScript basics in one hour. Want to master JavaScript? Get my complete JavaScript course: http://bit.ly/2M1sp4B</p>
+                    </div>
+                    <button class="ml-auto bg-red-600 px-4 py-1 rounded-full text-sm font-medium hover:bg-red-700">Subscribe</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Video data for each card
+        const videoData = {
+            "PkZNo7MFNFg": {
+                title: "JavaScript Tutorial for Beginners: Learn JavaScript in 1 Hour",
+                stats: "12M views • 3 years ago",
+                channel: "Programming with Mosh",
+                subs: "2.5M subscribers",
+                description: "Watch this JavaScript tutorial for beginners to learn JavaScript basics in one hour. Want to master JavaScript? Get my complete JavaScript course: http://bit.ly/2M1sp4B",
+                color: "purple"
+            },
+            "hdI2bqOjy3c": {
+                title: "HTML Tutorial for Beginners: Learn HTML in 1 Hour",
+                stats: "3.2M views • 1 year ago",
+                channel: "Bro Code",
+                subs: "1.8M subscribers",
+                description: "HTML tutorial for beginners - Learn HTML for the first time or brush up your skills with this HTML tutorial for beginners. This HTML tutorial will teach you the basics of HTML.",
+                color: "orange"
+            },
+            "UB1O30fR-EE": {
+                title: "HTML Crash Course For Absolute Beginners",
+                stats: "2.1M views • 1 month ago",
+                channel: "Web Dev Simplified",
+                subs: "2.3M subscribers",
+                description: "Learn HTML in this complete course for beginners. This is an all-in-one beginner tutorial to help you learn web development skills.",
+                color: "red"
+            },
+            "yfoY53QXEnI": {
+                title: "CSS Flexbox in 8 Minutes",
+                stats: "1.5M views • 2 months ago",
+                channel: "CSS Tricks",
+                subs: "1.2M subscribers",
+                description: "Learn CSS Flexbox in 8 minutes with this quick tutorial. We'll cover all the important flexbox properties you need to know.",
+                color: "yellow"
+            },
+            "1Rs2ND1ryYc": {
+                title: "Modern JavaScript Features You Need to Know",
+                stats: "723K views • 5 days ago",
+                channel: "JS Wizards",
+                subs: "950K subscribers",
+                description: "Modern JavaScript has so many new features. In this video, I'll show you the most important ones you should be using in your code.",
+                color: "green"
+            },
+            "6mbwJ2x5zbs": {
+                title: "Building a Responsive Website from Scratch",
+                stats: "945K views • 3 weeks ago",
+                channel: "Design Masters",
+                subs: "1.1M subscribers",
+                description: "Learn how to build a fully responsive website from scratch using HTML, CSS and a little bit of JavaScript.",
+                color: "pink"
+            },
+            "G3e-cpL7ofc": {
+                title: "Advanced CSS Techniques for 2023",
+                stats: "1.1M views • 2 weeks ago",
+                channel: "CSS Ninja",
+                subs: "1.4M subscribers",
+                description: "Take your CSS skills to the next level with these advanced techniques that will make your websites stand out.",
+                color: "indigo"
+            },
+            "jS4aFq5-91M": {
+                title: "How to Use GitHub for Beginners",
+                stats: "2.3M views • 4 months ago",
+                channel: "Git Guru",
+                subs: "2.7M subscribers",
+                description: "A beginner's tutorial to GitHub. Learn how to use GitHub to manage your code and collaborate with other developers.",
+                color: "teal"
+            }
+        };
+
+        // Toggle mobile menu
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && !sidebar.contains(e.target) && e.target !== menuBtn) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        // Video modal functionality
+        const videoCards = document.querySelectorAll('.video-card');
+        const videoModal = document.getElementById('video-modal');
+        const closeModal = document.getElementById('close-modal');
+        const videoPlayer = document.getElementById('video-player');
+        const videoTitle = document.getElementById('video-title');
+        const videoStats = document.getElementById('video-stats');
+        const channelName = document.getElementById('channel-name');
+        const channelSubs = document.getElementById('channel-subs');
+        const videoDescription = document.getElementById('video-description');
+        const channelIcon = document.getElementById('channel-icon');
+        
+        videoCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const videoId = card.getAttribute('data-video-id');
+                const data = videoData[videoId];
+                
+                // Update video player
+                videoPlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                
+                // Update video info
+                videoTitle.textContent = data.title;
+                videoStats.textContent = data.stats;
+                channelName.textContent = data.channel;
+                channelSubs.textContent = data.subs;
+                videoDescription.textContent = data.description;
+                
+                // Update channel icon color
+                channelIcon.className = `w-10 h-10 rounded-full bg-${data.color}-500 mr-3`;
+                
+                // Show modal
+                videoModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        closeModal.addEventListener('click', () => {
+            videoModal.classList.add('hidden');
+            videoPlayer.src = '';
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Close modal when clicking outside
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) {
+                videoModal.classList.add('hidden');
+                videoPlayer.src = '';
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // Simulate loading more videos when scrolling to bottom
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                // In a real app, you would fetch more videos here
+                console.log('Load more videos...');
+            }
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=winterSoldier663/you-clone" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
