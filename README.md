@@ -17,7 +17,7 @@ You-Clone is a static, front-end replica of the YouTube interface. This project 
 
 ## 📸 Image!
 
-[Screenshot 2025-05-23 170332](https://github.com/user-attachments/assets/830bfe90-94bd-42ee-9873-81427a24ebb6)
+![Screenshot 2025-05-23 170332](https://github.com/user-attachments/assets/830bfe90-94bd-42ee-9873-81427a24ebb6)
 
 
 
