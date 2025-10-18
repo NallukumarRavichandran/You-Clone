@@ -1,5 +1,5 @@
 # You-Clone 🎬  
-*A Frontend-Only YouTube UI Clone*
+*A Frontend-Only YouTube UI Clone* 
 
 You-Clone is a static, front-end replica of the YouTube interface. This project is designed to mimic the core user experience and visual layout of YouTube using modern web technologies. It focuses purely on UI/UX and serves as a portfolio piece to showcase front-end development skills.
 
@@ -27,7 +27,7 @@ You-Clone is a static, front-end replica of the YouTube interface. This project 
 
 *(Update based on your actual file structure)*
 
-## 📌 Note
+## 📌 Note 
 
 This project is static and does **not** include features like video playback, user authentication, or real-time data.  
 It is meant solely for UI/UX demonstration purposes.
@@ -35,3 +35,4 @@ It is meant solely for UI/UX demonstration purposes.
 ## 📜 License
 
 This project is open-source and available under the [MIT License](LICENSE).
+demo- https://nallukumarravichandran.github.io/You-Clone/
